@@ -2,10 +2,13 @@ dist: trusty
 language: java
 jdk:
 - oraclejdk8
+
 after_success:
 - mvn clean -DTRAVIS_JOB_ID=$TRAVIS_JOB_ID test jacoco:report coveralls:report
+
 before_deploy:
 - mvn install generate-sources javadoc:jar
+
 deploy:
   provider: releases
   api_key:
