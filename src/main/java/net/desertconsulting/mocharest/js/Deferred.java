@@ -17,11 +17,14 @@ package net.desertconsulting.mocharest.js;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import jdk.nashorn.api.scripting.JSObject;
 import jdk.nashorn.internal.runtime.Undefined;
 
 /**
- * A <a href="https://api.jquery.com/category/deferred-object/">JQuery.deferred</a>
+ * A
+ * <a href="https://api.jquery.com/category/deferred-object/">JQuery.deferred</a>
  * inspired class for deferred operations.
  *
  * @author Patrizio Bruno {@literal <desertconsulting@gmail.com>}
@@ -135,6 +138,21 @@ public class Deferred {
             handler = failHandler;
         }
 
+        Function<Object, Consumer<Deferred>> consumerGenerator = (r) -> {
+            Consumer<Deferred> consumer = null;
+
+            if (resolved) {
+                consumer = (p) -> {
+                    p.resolve(r);
+                };
+            } else if (rejected) {
+                consumer = (p) -> {
+                    p.reject(r);
+                };
+            }
+            return consumer;
+        };
+
         if (handler != null) {
             Object rv;
             try {
@@ -167,12 +185,9 @@ public class Deferred {
                         }
                         childPromise.runHandlers(null);
                     } else {
-                        for (Deferred p : children) {
-                            if (resolved) {
-                                p.resolve(parm);
-                            } else if (rejected) {
-                                p.reject(parm);
-                            }
+                        Consumer<Deferred> childrenConsumer = consumerGenerator.apply(parm);
+                        if (childrenConsumer != null) {
+                            children.stream().forEach(childrenConsumer);
                         }
                     }
                 }
@@ -183,12 +198,9 @@ public class Deferred {
                 runHandlers(ex);
             }
         } else if (resolved || rejected) {
-            for (Deferred p : children) {
-                if (resolved) {
-                    p.resolve(result);
-                } else if (rejected) {
-                    p.reject(result);
-                }
+            Consumer<Deferred> childrenConsumer = consumerGenerator.apply(result);
+            if (childrenConsumer != null) {
+                children.stream().forEach(childrenConsumer);
             }
         }
     }

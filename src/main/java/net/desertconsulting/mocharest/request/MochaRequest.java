@@ -19,12 +19,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.ws.rs.BadRequestException;
@@ -93,19 +97,11 @@ public class MochaRequest extends HttpServletRequestWrapper {
     }
 
     private void validateQueryString() {
-        for (String param : handler.queryParameters) {
-            boolean found = false;
-            Enumeration<String> parameterNames = getParameterNames();
-            while (parameterNames.hasMoreElements()) {
-                if (parameterNames.nextElement().equals(param)) {
-                    found = true;
-                    break;
-                }
-            }
 
-            if (!found) {
-                throw new BadRequestMissingQueryParamException(param);
-            }
+        List<String> parameterNames = Collections.list(getParameterNames());
+        Optional<String> res = handler.queryParameters.stream().parallel().filter((p) -> !parameterNames.contains(p)).findAny();
+        if (res.isPresent()) {
+            throw new BadRequestMissingQueryParamException(res.get());
         }
     }
 
@@ -113,21 +109,18 @@ public class MochaRequest extends HttpServletRequestWrapper {
 
         String pathInfo = getPathInfo();
         Matcher matcher = handler.getPathPattern().matcher(pathInfo);
-        int i = 1;
+        final AtomicInteger index = new AtomicInteger(1);
         if (matcher.find()) {
-            for (Map.Entry<String, PathParam> pathParam
-                    : handler.pathParameters.
-                    entrySet()) {
-                try {
-                    pathParameterMap.put(pathParam.getKey(),
-                            pathParam.getValue().convert.
-                            apply(matcher.group(i++)));
-                } catch (Exception ex) {
-                    Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                            null, ex);
-                    throw new BadRequestParamException(pathParam.getKey(), ex);
-                }
-            }
+            pathParameterMap.putAll(handler.pathParameters.entrySet().stream().collect(Collectors.toMap((pp) -> pp.getKey(),
+                     (pp) -> {
+                        try {
+                            return pp.getValue().convert.apply(matcher.group(index.getAndIncrement()));
+                        } catch (Exception ex) {
+                            Logger.getLogger(getClass().getName()).log(Level.SEVERE,
+                                    null, ex);
+                            throw new BadRequestParamException(pp.getKey(), ex);
+                        }
+                    })));
         } else {
             throw new BadRequestException("path parameters don't match");
         }

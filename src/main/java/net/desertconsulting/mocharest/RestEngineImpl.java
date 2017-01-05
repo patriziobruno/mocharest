@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletContext;
@@ -188,10 +189,10 @@ public class RestEngineImpl implements RestEngine {
         String method = request.getMethod();
         List<MochaRequestHandler> methodHandlers = handlers.get(method);
         if (methodHandlers != null) {
-            for (MochaRequestHandler handler : methodHandlers) {
-                if (handler.getPathPattern().matcher(path).matches()) {
-                    return handler;
-                }
+            Optional<MochaRequestHandler> h = methodHandlers.stream()
+                    .filter(handler -> handler.getPathPattern().matcher(path).matches()).findFirst();
+            if (h.isPresent()) {
+                return h.get();
             }
             throw new NotFoundException();
         } else {
