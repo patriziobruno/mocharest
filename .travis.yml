@@ -1,0 +1,18 @@
+dist: trusty
+language: java
+jdk:
+- oraclejdk8
+after_success:
+- mvn clean -DTRAVIS_JOB_ID=$TRAVIS_JOB_ID test jacoco:report coveralls:report
+before_deploy:
+- mvn install generate-sources javadoc:jar
+deploy:
+  provider: releases
+  api_key:
+    secure: jR0f5S2y0oRVJi7k5dH6qAKD5vwK+z1EHQuE1/0u5iP7JIwTzvZI999YYqRjcu0cCLFr61kZV579ecqnNkn2N32iRqzWrOX0HS3PA9g6fxh5T2Qn8aacD0Dys2gNuvz/SJaEMU4vwQcl5Xw6CFLRpXviIBoVTPFD96IV8k+3LcoThFWsHnc8KHLS1vdw0I2WkSBEZChqk0Y+f+7Z9pcM+27atvC/FVIaBonqo+lLWPbVaCgCiV5HB2Vv12ff3SblGvTZcrdXEPpEhZcc0m3PbRIuIReiHmOr+Js5x9NwYMXu0xRvGM8ouMrXKnMa6xuk3X+KjTZWYvmdtR/90EVR3wXa/GVsG7lPthp14BpRBK7uzbdWVTyaA13In4Xq8rwScAt1EqinzKMXLaOG2VfBO+Rp5jxc8+XcDkRZJDq/fRQ9db438vtnmRg8WYuFca+o7/a0lYS4vJNQd8bqGnFPVwl9AdpCiKikOFCrLNmVhE8rs8jkdR/ugKD4pNH5w4Ee98+Molc3GCYWY3j2VQ16aqBz2bBpocm7cfLfpDlsOk/0CDt4weRSnDoooDRFfNMqZtmZEcAqdnbpQ3ALxY3BTFVEabGzVO4yuTNMWnRrT6i8dlpbJAllIDrp/jSkf6nO5t6nUov02D9t9/lseioBXWw9zrUY6AYZxOnVad84nX8=
+  file:
+  - target/mocharest-0.0.1.jar
+  - target/mocharest-0.0.1-javadoc.jar
+  - target/mocharest-0.0.1-sources.jar
+  on:
+    tags: true
