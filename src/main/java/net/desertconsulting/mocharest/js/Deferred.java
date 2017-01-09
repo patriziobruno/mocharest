@@ -43,15 +43,28 @@ public class Deferred {
     private Deferred parent;
     private List<Deferred> children;
 
+    /**
+     * Initialize a new instance of {@link Deferred}.
+     */
     public Deferred() {
         children = new ArrayList<>();
     }
 
+    /**
+     * Initialize a new instance of {@link Deferred}, setting {@link parent} as
+     * its parent.
+     */
     private Deferred(Deferred parent) {
         this();
         this.parent = parent;
     }
 
+    /**
+     * Resolves the current {@link Deferred} with the given {@code result}.
+     *
+     * @param result result of the deferred, it'll be passed to the right
+     * handlers.
+     */
     public void resolve(Object result) {
         if (!resolved && !rejected) {
             resolved = true;
@@ -64,6 +77,12 @@ public class Deferred {
         }
     }
 
+    /**
+     * Rejects the current {@link Deferred} with the given {@code result}.
+     *
+     * @param result result of the deferred, it'll be passed to the right
+     * handlers.
+     */
     public void reject(Object result) {
         if (!resolved && !rejected) {
 
@@ -77,6 +96,13 @@ public class Deferred {
         }
     }
 
+    /**
+     * Registers a new handler to be called when the {@link Deferred} is
+     * resolved.
+     *
+     * @param handler the handler to be registered
+     * @return a newly created {@link Deferred} object
+     */
     public Deferred done(JSObject handler) {
         if (handler.isFunction()) {
             doneHandler = handler;
@@ -91,6 +117,13 @@ public class Deferred {
         throw new IllegalArgumentException("handler");
     }
 
+    /**
+     * Registers a new handler to be called when the {@link Deferred} is
+     * rejected.
+     *
+     * @param handler the handler to be registered
+     * @return the newly created {@link Deferred} object
+     */
     public Deferred fail(JSObject handler) {
 
         if (handler.isFunction()) {
@@ -107,6 +140,13 @@ public class Deferred {
         throw new IllegalArgumentException("handler");
     }
 
+    /**
+     * Registers a new handler to be called when the {@link Deferred} is
+     * resolved or rejected.
+     *
+     * @param handler the handler to be registered
+     * @return the newly created {@link Deferred} object
+     */
     public Deferred always(JSObject handler) {
 
         if (handler.isFunction()) {
@@ -125,6 +165,12 @@ public class Deferred {
         throw new IllegalArgumentException("handler");
     }
 
+    /**
+     * Runs right handlers when this {@link Deferred} object is either resolved
+     * or rejected.
+     *
+     * @param res result
+     */
     private void runHandlers(Object res) {
 
         Object result = null;
@@ -165,14 +211,6 @@ public class Deferred {
                     } else {
                         parm = result;
                     }
-//
-//                if (parent != null) {
-//                    if (resolved) {
-//                        parent.resolve(result);
-//                    } else if (rejected) {
-//                        parent.reject(res);
-//                    }
-//                }
 
                     if (parm instanceof Deferred) {
                         Deferred childPromise = (Deferred) parm;

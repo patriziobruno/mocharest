@@ -18,11 +18,18 @@ package net.desertconsulting.mocharest.request;
 import java.util.function.Function;
 
 /**
+ * This class contains value converter for a named path parameter
  *
  * @author Patrizio Bruno {@literal <desertconsulting@gmail.com>}
  */
 class PathParam {
 
+    /**
+     * Name of the path parameter
+     */
     public String name;
+    /**
+     * Function to convert a path parameter string to the appropriate value.
+     */
     public Function<String, Object> convert;
 }

@@ -50,28 +50,103 @@ public interface RestEngine {
 
     /**
      * Registers a Javascript function as a handler for GET requests of URLs
-     * described the pattern {@code url}.
-     * 
-     * @param url URL pattern. Path parameters are described by the syntax 
-     * {parameter_name:type}. Supported types are int, string, double, float, hex.
-     * hex parameters are converted to {@link byte} arrays.
-     * @param parms configuration parameters: 1st parm must be a function; 2nd 
-     * parameter can be an object with the following properties: contentType and acceptType.
-     * If parms is empty then this handler will be registered only for URL checking.
-     * 
+     * described by the pattern {@code url}.
+     *
+     * @param url URL pattern. Path parameters are described by the syntax
+     * {parameter_name:type}. Supported types are int, long, string, double,
+     * float, hex. hex parameters are converted to {@link byte} arrays.
+     * @param parms configuration parameters: 1st parm can be either a function 
+     * or a configuration object with the following properties: contentType and 
+     * acceptType. 2nd parameter, if present, must follow a configuration object 
+     * and be a function If no function is set this handler will be registered 
+     * only for URL checking.
+     *
      * @return it will return the object's instance for chaining.
-     * @throws MalformedURLException {@code} url has an incorrect format
+     * @throws MalformedURLException {@code url} has an incorrect format
      */
     RestEngine get(String url, JSObject... parms) throws MalformedURLException;
 
+    /**
+     * Registers a Javascript function as a handler for POST requests of URLs
+     * described by the pattern {@code url}.
+     *
+     * @param url URL pattern. Path parameters are described by the syntax
+     * {parameter_name:type}. Supported types are int, long, string, double,
+     * float, hex. hex parameters are converted to {@link byte} arrays.
+     * @param parms configuration parameters: 1st parm can be either a function 
+     * or a configuration object with the following properties: contentType and 
+     * acceptType. 2nd parameter, if present, must follow a configuration object 
+     * and be a function If no function is set this handler will be registered 
+     * only for URL checking.
+     *
+     * @return it will return the object's instance for chaining.
+     * @throws MalformedURLException {@code url} has an incorrect format
+     */
     RestEngine post(String url, JSObject... parms) throws MalformedURLException;
 
+    /**
+     * Registers a Javascript function as a handler for PUT requests of URLs
+     * described by the pattern {@code url}.
+     *
+     * @param url URL pattern. Path parameters are described by the syntax
+     * {parameter_name:type}. Supported types are int, long, string, double,
+     * float, hex. hex parameters are converted to {@link byte} arrays.
+     * @param parms configuration parameters: 1st parm can be either a function 
+     * or a configuration object with the following properties: contentType and 
+     * acceptType. 2nd parameter, if present, must follow a configuration object 
+     * and be a function If no function is set this handler will be registered 
+     * only for URL checking.
+     *
+     * @return it will return the object's instance for chaining.
+     * @throws MalformedURLException {@code url} has an incorrect format
+     */
     RestEngine put(String url, JSObject... parms) throws MalformedURLException;
 
+    /**
+     * Registers a Javascript function as a handler for HEAD requests of URLs
+     * described by the pattern {@code url}.
+     *
+     * @param url URL pattern. Path parameters are described by the syntax
+     * {parameter_name:type}. Supported types are int, long, string, double,
+     * float, hex. hex parameters are converted to {@link byte} arrays.
+     * @param parms configuration parameters: 1st parm can be either a function 
+     * or a configuration object with the following properties: contentType and 
+     * acceptType. 2nd parameter, if present, must follow a configuration object 
+     * and be a function If no function is set this handler will be registered 
+     * only for URL checking.
+     *
+     * @return it will return the object's instance for chaining.
+     * @throws MalformedURLException {@code url} has an incorrect format
+     */
     RestEngine head(String url, JSObject... parms) throws MalformedURLException;
 
+    /**
+     * Registers a Javascript function as a handler for OPTIONS requests of URLs
+     * described by the pattern {@code url}.
+     *
+     * @param url URL pattern. Path parameters are described by the syntax
+     * {parameter_name:type}. Supported types are int, long, string, double,
+     * float, hex. hex parameters are converted to {@link byte} arrays.
+     * @param parms configuration parameters: 1st parm can be either a function 
+     * or a configuration object with the following properties: contentType and 
+     * acceptType. 2nd parameter, if present, must follow a configuration object 
+     * and be a function If no function is set this handler will be registered 
+     * only for URL checking.
+     *
+     * @return it will return the object's instance for chaining.
+     * @throws MalformedURLException {@code url} has an incorrect format
+     */
     RestEngine options(String url, JSObject... parms) throws
             MalformedURLException;
 
+    /**
+     * Reads the content of a context's resource or a data-URI as {@link String}.
+     * 
+     * @param path path to a context's resource or a data-URI
+     * @return content of a text-file
+     * @throws MalformedURLException malformed path
+     * @throws IOException IO error loading the file
+     * @throws URISyntaxException  malformed path
+     */
     String getFileContent(String path) throws MalformedURLException, IOException, URISyntaxException;
 }

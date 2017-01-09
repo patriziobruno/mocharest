@@ -30,13 +30,18 @@ import java.util.stream.Collectors;
 import jdk.nashorn.api.scripting.JSObject;
 
 /**
- *
+ * This class is a container for servlet-requests handlers and validators.
+ * 
  * @author Patrizio Bruno {@literal <desertconsulting@gmail.com>}
  */
 public class MochaRequestHandler {
 
     List<String> queryParameters;
     Map<String, PathParam> pathParameters;
+    
+    /**
+     * This is a javascript function handling incoming servlet requests
+     */
     public JSObject function;
 
     private final String contentType;
@@ -48,6 +53,9 @@ public class MochaRequestHandler {
     private final static Map<String, Function<String, Object>> CONVERTERS
             = new HashMap<>();
 
+    /**
+     * Initialize path parameter value converters
+     */
     static {
         CONVERTERS.put("string", s -> s);
         CONVERTERS.put("int", s -> Integer.parseInt(s));
@@ -110,10 +118,19 @@ public class MochaRequestHandler {
         parseQueryString(u);
     }
 
+    /**
+     * This {@link Pattern} check if a requested url matches is handled by this handler
+     * @return 
+     */
     public Pattern getPathPattern() {
         return pathPattern;
     }
 
+    /**
+     * Parse url's path, fill {@link MochaRequestHanlder#pathParameters} and sets
+     * {@link MochaRequestHanlder#pathPattern}
+     * @param url URL to be parsed
+     */
     private void parseUrl(URL url) {
 
         StringBuffer sb = new StringBuffer();
@@ -144,6 +161,11 @@ public class MochaRequestHandler {
         }
     }
 
+    /**
+     * Parses URL's query_string and fill {@link MochaRequestHanlder#queryParameters}.
+     * They will later be used to validate incoming requests.
+     * @param url URL to be parsed
+     */
     private void parseQueryString(URL url) {
         String queryString = url.getQuery();
         if (queryString != null && queryString.length() > 0 && queryString.
@@ -161,6 +183,10 @@ public class MochaRequestHandler {
         }
     }
 
+    /**
+     * Expected content type for a request
+     * @return Expected content type for a request
+     */
     public String getContentType() {
         return contentType;
     }

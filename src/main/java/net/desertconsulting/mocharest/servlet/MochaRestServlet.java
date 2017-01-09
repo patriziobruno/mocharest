@@ -31,7 +31,8 @@ import javax.ws.rs.core.Response;
 import net.desertconsulting.mocharest.js.MochaJsEngine;
 
 /**
- *
+ * Servlet passing over requests to {@link MochaJsEngine} and handling errors.
+ * 
  * @author Patrizio Bruno {@literal <desertconsulting@gmail.com>}
  */
 public class MochaRestServlet extends HttpServlet {

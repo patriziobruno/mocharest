@@ -25,6 +25,8 @@ import javax.ws.rs.core.MediaType;
 import net.desertconsulting.mocharest.request.MochaRequest;
 
 /**
+ * A {@link javax.servlet.httpHttpServletReponse} wrapper to handle response from
+ * a MochaREST javascript application server.
  *
  * @author Patrizio Bruno {@literal <desertconsulting@gmail.com>}
  */
@@ -85,7 +87,7 @@ public class MochaResponse extends HttpServletResponseWrapper {
         }
 
         commit();
-        
+
         try (OutputStream out = getOutputStream()) {
             if (mapper != null) {
                 mapper.writeValue(out, val);

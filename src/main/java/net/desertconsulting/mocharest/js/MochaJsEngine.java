@@ -26,6 +26,7 @@ import net.desertconsulting.mocharest.RestEngine;
 import net.desertconsulting.mocharest.RestEngineImpl;
 
 /**
+ * Wrapper class to inizialize and run a Javascript application server.
  *
  * @author Patrizio Bruno {@literal <desertconsulting@gmail.com>}
  */
@@ -33,9 +34,16 @@ public class MochaJsEngine {
 
     private final ScriptEngine scriptEngine;
     private final RestEngineImpl restEngine;
-    
+
     public final static String MOCHA_RESTENGINE_GLOBALNAME = "$mr";
 
+    /**
+     * Initialize a new instance of {@link MochaJsEngine}, registers the
+     * Javascript module loading interface and the {@link Deferred} interface.
+     *
+     * @param context servlet context
+     * @throws ScriptException a Javascript error has occured during the initialization
+     */
     public MochaJsEngine(ServletContext context) throws ScriptException {
 
         restEngine = new RestEngineImpl(context);
@@ -60,21 +68,36 @@ public class MochaJsEngine {
                 + "}"
                 + "return module.exports; "
                 + "}"));
-        
+
         //jQuery.Deferred-like interface
         scriptEngine.eval("var scope = new JavaImporter(Packages.net.desertconsulting.mocharest.js);\n"
                 + "Deferred = scope.Deferred;");
     }
 
+    /**
+     * Evals a Javascript coming from the given {@code reader}.
+     * @param reader source of the script
+     * @return result of the script
+     * @throws ScriptException an error occurred evaluating the script
+     */
     public Object eval(Reader reader) throws ScriptException {
         return scriptEngine.eval(reader);
     }
 
+    /**
+     * Handles a servlet request.
+     * @param request request to be handled
+     * @param response response object
+     */
     public void handle(HttpServletRequest request, HttpServletResponse response) {
         restEngine.handle(request, response);
     }
 
-    public RestEngineImpl getRestEngine() {
+    /**
+     * Returns the {@link RestEngineImpl} used to handle servlet requests.
+     * @return the {@link RestEngineImpl} used to handle servlet requests.
+     */
+    public RestEngine getRestEngine() {
         return restEngine;
     }
 }

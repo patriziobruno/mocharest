@@ -56,6 +56,10 @@ public class RestEngineImpl implements RestEngine {
     private final Map<String, List<MochaRequestHandler>> handlers;
     private final ServletContext context;
 
+    /**
+     * Initialize a new instance of {@link RestEngineImpl}.
+     * @param context servlet context for resolving context resources.
+     */
     public RestEngineImpl(ServletContext context) {
         handlers = new HashMap<>();
         handlers.put(GET_METHOD, new ArrayList<>());
@@ -119,6 +123,15 @@ public class RestEngineImpl implements RestEngine {
         }
     }
 
+    /**
+     * Opens a given file. It can either be a context's resource or a data-URI.
+     * @param path path to the text-file, relative to context path. It can also be
+     * a data-URI.
+     * @return {@link FileReader} for files or {@link InputStreamReader} for data-URIs
+     * @throws MalformedURLException malformed path/data-URI
+     * @throws FileNotFoundException file not found
+     * @throws URISyntaxException  malformed path/data-URI
+     */
     private Reader getContentReader(String path) throws URISyntaxException,
             MalformedURLException, FileNotFoundException {
         if (path.toLowerCase().startsWith("data:")) {
@@ -140,6 +153,12 @@ public class RestEngineImpl implements RestEngine {
         }
     }
 
+    /**
+     * Run handler for a given request.
+     * 
+     * @param request http servlet request to be handled
+     * @param response http servlet restponse to send a response
+     */
     public void handle(HttpServletRequest request, HttpServletResponse response) {
 
         // Retrieving config and initializing MochaRequest will perform
@@ -173,6 +192,20 @@ public class RestEngineImpl implements RestEngine {
         }
     }
 
+    /**
+     * Register a new handler for the given method-url pair.
+     * @param method one of GET|POST|PUT|HEAD|OPTIONS
+     * @param url URL pattern. Path parameters are described by the syntax
+     * {parameter_name:type}. Supported types are int, long, string, double,
+     * float, hex. hex parameters are converted to {@link byte} arrays.
+     * @param parms configuration parameters: 1st parm can be either a function 
+     * or a configuration object with the following properties: contentType and 
+     * acceptType. 2nd parameter, if present, must follow a configuration object 
+     * and be a function If no function is set this handler will be registered 
+     * only for URL checking.
+     *
+     * @throws MalformedURLException {@code url} has an incorrect format
+     */
     private void register(String method, String url, JSObject... parms) throws
             MalformedURLException {
 
@@ -184,6 +217,14 @@ public class RestEngineImpl implements RestEngine {
         }
     }
 
+    /**
+     * Retrieves the first handler matching the given request.
+     * 
+     * @param request servlet request
+     * @return a handler for a given request
+     * @throws NotFoundException no handlers found for the given request
+     * @throws BadRequestException the request comes with an unsupported method
+     */
     private MochaRequestHandler getConfig(HttpServletRequest request) {
         String path = request.getPathInfo();
         String method = request.getMethod();
@@ -201,6 +242,10 @@ public class RestEngineImpl implements RestEngine {
         }
     }
 
+    /**
+     * List all available handlers.
+     * @return a list of all the available handlers
+     */
     Map<String, List<MochaRequestHandler>> getHandlers() {
         return handlers;
     }

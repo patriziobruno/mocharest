@@ -36,7 +36,9 @@ import javax.ws.rs.core.MediaType;
 import net.desertconsulting.mocharest.BadRequestMissingQueryParamException;
 
 /**
- *
+ * A {@link javax.servlet.httpHttpServletRequest} wrapper to handle requests
+ * to a MochaREST javascript application server.
+ * 
  * @author Patrizio Bruno {@literal <desertconsulting@gmail.com>}
  */
 public class MochaRequest extends HttpServletRequestWrapper {
@@ -46,6 +48,11 @@ public class MochaRequest extends HttpServletRequestWrapper {
     private Object body;
     private final String cType;
 
+    /**
+     * Initialize a new instance of {@link MochaRequest} retrieving the request's
+     * content-type.
+     * @param request servlet request to be wrapped.
+     */
     public MochaRequest(HttpServletRequest request) {
         super(request);
         this.pathParameterMap = new HashMap<>();
@@ -60,6 +67,13 @@ public class MochaRequest extends HttpServletRequestWrapper {
         cType = contentType;
     }
 
+
+    /**
+     * Initialize a new instance of {@link MochaRequest} retrieving the request's
+     * content-type and parsing parameters and body of the request.
+     * @param request servlet request to be wrapped.
+     * @param handler handler for the request
+     */
     public MochaRequest(HttpServletRequest request, MochaRequestHandler handler) {
         this(request);
         this.handler = handler;
@@ -68,19 +82,39 @@ public class MochaRequest extends HttpServletRequestWrapper {
         parseBody();
     }
 
+    /**
+     * Retrieves the value of a given path-parameter.
+     * @param name name of the path-parameter to be retrieved.
+     * @return value of a given path-parameter
+     */
     public Object getPathParameter(String name) {
         return pathParameterMap.containsKey(name) ? pathParameterMap.get(
                 name) : null;
     }
 
+    /**
+     * Returns a map of all the request's path-parameters.
+     * @return a map of all the request's path-parameters
+     */
     public Map<String, Object> getPathParameterMap() {
         return pathParameterMap;
     }
 
+    /**
+     * Body of the request.
+     * @return body of the request
+     */
     public Object getBody() {
         return body;
     }
 
+    /**
+     * The default behavior of this method is to return getParameterMap() on the
+     * wrapped request object.
+     * @return an immutable java.util.Map containing parameter names as keys and 
+     * parameter values as map values. The keys in the parameter map are of type String.
+     * The values in the parameter map are of type String or String array.
+     */
     public Map<String, Object> getParametersMap() {
         Map<String, String[]> parameterMap = super.getParameterMap();
         Map<String, Object> parametersMap = new HashMap<>(parameterMap.size());
@@ -96,6 +130,12 @@ public class MochaRequest extends HttpServletRequestWrapper {
         return parametersMap;
     }
 
+    /**
+     * Check for the presence of all the mandatory query-string parameters. If
+     * a parameter is missing a {@link BadRequestMissingQueryParamException} is thrown.
+     * @throws BadRequestMissingQueryParamException if a required query parameter
+     * is missing.
+     */
     private void validateQueryString() {
 
         List<String> parameterNames = Collections.list(getParameterNames());
@@ -105,6 +145,10 @@ public class MochaRequest extends HttpServletRequestWrapper {
         }
     }
 
+    /**
+     * Parse all the path parameters in the request.
+     * @throws BadRequestException if a required path parameters is not found
+     */
     private void parsePathInfo() {
 
         String pathInfo = getPathInfo();
@@ -126,6 +170,11 @@ public class MochaRequest extends HttpServletRequestWrapper {
         }
     }
 
+    /**
+     * Parse a request's body. Only supported formats are application/xml
+     * and application/json. Any other format will be treated as JSON and may 
+     * result in errors.
+     */
     private void parseBody() {
         if (getContentLength() > 0) {
             try (InputStream input
